@@ -1,4 +1,3 @@
-const fs = require("fs");
 const express = require("express");
 require("dotenv").config();
 const { Pool } = require("pg");
@@ -6,20 +5,44 @@ const { Pool } = require("pg");
 const app = express();
 app.use(express.json());
 
-function saveTodos(todos, callback) {
-  fs.writeFile("./todos.json", JSON.stringify(todos), (err) => {
-    if (err) {
-      return callback(err);
-    }
-
-    callback(null);
-  });
-}
-
-//const todos = JSON.parse(fs.readFileSync("./todos.json", "utf-8"));
-
 app.get("/api/v1/todos", (req, res) => {
-  pool.query("SELECT * FROM todos", (err, result) => {
+  const { completed, sort, search } = req.query;
+
+  let query = "SELECT * FROM todos";
+  const conditions = [];
+  const values = [];
+
+  if (completed === "true" || completed === "false") {
+    conditions.push(`completed = $${values.length + 1}`);
+    values.push(completed === "true");
+  } else if (completed !== undefined) {
+    return res.status(400).json({
+      status: "error",
+      message: "Wrong Filter value"
+    });
+  }
+
+  if (search !== undefined) {
+    conditions.push(`title ILIKE $${values.length + 1}`);
+    values.push(`%${search}%`);
+  }
+
+  if (conditions.length > 0) {
+    query += " WHERE " + conditions.join(" AND ");
+  }
+
+  if (sort === "id") {
+    query += " ORDER BY id ASC";
+  } else if (sort === "-id") {
+    query += " ORDER BY id DESC";
+  } else if (sort !== undefined) {
+    return res.status(400).json({
+      status: "error",
+      message: "Wrong Sort value"
+    });
+  }
+
+  pool.query(query, values, (err, result) => {
     if (err) {
       return res.status(500).json({
         status: "error",
