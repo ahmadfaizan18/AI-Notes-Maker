@@ -1,13 +1,20 @@
 const fs = require("fs");
 const express = require("express");
 
-let app = express();
+const app = express();
 app.use(express.json());
-let todos = JSON.parse(fs.readFileSync("./todos.json", "utf-8"));
 
-/*const result = todos
-  .map((todo) => `${todo.id}, ${todo.title}, ${todo.completed}<br>`)
-  .join("");*/
+function saveTodos(todos, callback) {
+  fs.writeFile("./todos.json", JSON.stringify(todos), (err) => {
+    if (err) {
+      return callback(err);
+    }
+
+    callback(null);
+  });
+}
+
+const todos = JSON.parse(fs.readFileSync("./todos.json", "utf-8"));
 
 app.get("/api/v1/todos", (req, res) => {
   res.status(200).json({
@@ -19,70 +26,88 @@ app.get("/api/v1/todos", (req, res) => {
 });
 
 app.get("/api/v1/todos/:id", (req, res) => {
-  const id = req.params.id * 1;
-  const ntodo = todos.find((todo) => todo.id === id);
-  if (!ntodo) {
+  const id = Number(req.params.id);
+  const todo = todos.find((todo) => todo.id === id);
+  if (!todo) {
     return res.status(404).json({
-      status: "success",
-      message: `No movie with id:${id} exists`
+      status: "error",
+      message: `No ToDo with id:${id} exists`
     });
   }
   res.status(200).json({
     status: "success",
     data: {
-      todo: ntodo
+      todo
     }
   });
 });
 
 app.post("/api/v1/todos", (req, res) => {
   const nID = todos[todos.length - 1].id + 1;
-  const ntodo = Object.assign({ id: nID }, req.body);
-  todos.push(ntodo);
-  fs.writeFile("./todos.json", JSON.stringify(todos), (err) => {
-    res.status(200).json({
+  const todo = Object.assign({ id: nID }, req.body);
+  todos.push(todo);
+  saveTodos(todos, (err) => {
+    if (err) {
+      return res.status(500).json({
+        status: "error",
+        message: "Failed to save todos"
+      });
+    }
+
+    res.status(201).json({
       status: "success",
       data: {
-        todo: ntodo
+        todo
       }
     });
   });
 });
 
 app.patch("/api/v1/todos/:id", (req, res) => {
-  let id = req.params.id * 1;
-  let newtodo = todos.find((todo) => todo.id === id);
-  if (!newtodo) {
+  const id = Number(req.params.id);
+  const todo = todos.find((todo) => todo.id === id);
+  if (!todo) {
     return res.status(404).json({
-      status: "success",
-      message: `No movie with id:${id} exists`
+      status: "error",
+      message: `No ToDo with id:${id} exists`
     });
   }
-  let index = todos.indexOf(newtodo);
-  Object.assign(newtodo, req.body);
-  todos[index] = newtodo;
-  fs.writeFile("./todos.json", JSON.stringify(todos), (err) => {
+  Object.assign(todo, req.body);
+  saveTodos(todos, (err) => {
+    if (err) {
+      return res.status(500).json({
+        status: "error",
+        message: "Failed to save todos"
+      });
+    }
+
     res.status(200).json({
       status: "success",
       data: {
-        todo: newtodo
+        todo
       }
     });
   });
 });
 
 app.delete("/api/v1/todos/:id", (req, res) => {
-  let id = req.params.id * 1;
-  let newtodo = todos.find((todo) => todo.id === id);
-  let index = todos.indexOf(newtodo);
-  if (!newtodo) {
+  const id = Number(req.params.id);
+  const todo = todos.find((todo) => todo.id === id);
+  if (!todo) {
     return res.status(404).json({
-      status: "success",
-      message: `No movie with id:${id} exists`
+      status: "error",
+      message: `No ToDo with id:${id} exists`
     });
   }
-  todos.splice(index, 1);
-  fs.writeFile("./todos.json", JSON.stringify(todos), (err) => {
+  todos.splice(todos.indexOf(todo), 1);
+  saveTodos(todos, (err) => {
+    if (err) {
+      return res.status(500).json({
+        status: "error",
+        message: "Failed to save todos"
+      });
+    }
+
     res.status(200).json({
       status: "success",
       data: {
