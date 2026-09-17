@@ -1,10 +1,10 @@
 const express = require("express");
-const todoRoutes = require("./routes/todoRoutes");
+const noteRoutes = require("./routes/noteRoutes");
 
 const app = express();
 
 app.use(express.json());
 
-app.use("/api/v1/todos", todoRoutes);
+app.use("/api/v1/notes", noteRoutes);
 
 module.exports = app;
