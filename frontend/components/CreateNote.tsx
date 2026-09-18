@@ -9,16 +9,23 @@ const CreateNote = ({ onNoteCreated }: CreateNoteProps) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const note: Note = {
-      id: Date.now(),
-      title: title,
-      content: content,
-      created_at: new Date().toISOString(),
-      modified_at: new Date().toISOString(),
-    };
+    const response = await fetch("http://localhost:3000/api/v1/notes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body:JSON.stringify({
+        title:title,
+        content:content
+    })
+    });
+
+    const data = await response.json();
+
+    const note:Note=data.data.note;
 
     onNoteCreated(note);
 
