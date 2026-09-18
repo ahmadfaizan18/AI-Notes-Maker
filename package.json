@@ -6,5 +6,8 @@
   },
   "scripts": {
     "dev": "nodemon backend/server.js"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }
