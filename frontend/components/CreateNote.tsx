@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Note } from "../types/Note";
+import {postNote} from "../src/services/noteService";
 
 interface CreateNoteProps {
   onNoteCreated: (note: Note) => void;
@@ -12,20 +13,7 @@ const CreateNote = ({ onNoteCreated }: CreateNoteProps) => {
   const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const response = await fetch("http://localhost:3000/api/v1/notes", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body:JSON.stringify({
-        title:title,
-        content:content
-    })
-    });
-
-    const data = await response.json();
-
-    const note:Note=data.data.note;
+    const note = await postNote(title,content);
 
     onNoteCreated(note);
 

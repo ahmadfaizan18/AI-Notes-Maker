@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import type { Note } from "../types/Note";
 import CreateNote from "../components/CreateNote.tsx";
 import NotesList from "../components/NotesList";
+import { getNotes, deleteNote, patchNote } from "./services/noteService";
 
 export default function App() {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -10,13 +11,8 @@ export default function App() {
   useEffect(() => {
     const fetchNotes = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/v1/notes", {
-          method: "GET",
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setNotes(data.data.notes);
-        } else throw new Error("Failed To Fetch");
+        const notes = await getNotes();
+        setNotes(notes);
       } catch (error) {
         console.error(error);
       }
@@ -31,16 +27,12 @@ export default function App() {
     setShowNotes(!showNotes);
   };
   const handleDeleteANote = async (id: number) => {
-    console.log("delete clicked");
     try {
-      const response = await fetch(`http://localhost:3000/api/v1/notes/${id}`, {
-        method: "DELETE",
-      });
-      if (response.ok) {
-        setNotes((prevNotes) => prevNotes.filter((ele) => ele.id != id));
-      } else throw new Error("Failed To Fetch");
+      await deleteNote(id);
+      setNotes((prevNotes) => prevNotes.filter((ele) => ele.id != id));
     } catch (error) {
       console.error(error);
+      throw error;
     }
   };
 
@@ -49,24 +41,11 @@ export default function App() {
     title: string,
     content: string,
   ) => {
-    console.log("edit clicked");
     try {
-      const response = await fetch(`http://localhost:3000/api/v1/notes/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title: title,
-          content: content,
-        }),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setNotes((prevNotes) =>
-          prevNotes.map((ele) => (ele.id === id ? data.data.note : ele)),
-        );
-      } else throw new Error("Failed To Fetch");
+      const note = await patchNote(id, title, content);
+      setNotes((prevNotes) =>
+        prevNotes.map((ele) => (ele.id === id ? note: ele)),
+      );
     } catch (error) {
       console.error(error);
     }
