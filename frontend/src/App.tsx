@@ -9,9 +9,9 @@ export default function App() {
   const [showNotes, setShowNotes] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   useEffect(() => {
-
     const fetchNotes = async () => {
       setLoading(true);
       try {
@@ -21,7 +21,7 @@ export default function App() {
       } catch (error) {
         console.error(error);
         setError("failed to fetch notes");
-      } finally{
+      } finally {
         setLoading(false);
       }
     };
@@ -35,11 +35,13 @@ export default function App() {
     setShowNotes(!showNotes);
   };
   const handleDeleteANote = async (id: number) => {
+    setDeletingId(id);
     try {
       await deleteNote(id);
-      setNotes((prevNotes) => prevNotes.filter((ele) => ele.id != id));
+      setNotes((prevNotes) => prevNotes.filter((ele) => ele.id !== id));
     } catch (error) {
       console.error(error);
+      setDeletingId(null);
       throw error;
     }
   };
@@ -71,6 +73,7 @@ export default function App() {
         <NotesList
           notes={notes}
           onNoteDeleted={handleDeleteANote}
+          deletingId={deletingId}
           onNoteEdit={handleEditANote}
         />
       )}

@@ -4,21 +4,34 @@ import { useState } from "react";
 interface NotesListProps {
   notes: Note[];
   onNoteDeleted: (id: number) => void;
+  deletingId: number | null;
   onNoteEdit: (id: number, title: string, content: string) => void;
 }
 
-const NotesList = ({ notes, onNoteDeleted, onNoteEdit }: NotesListProps) => {
+const NotesList = ({
+  notes,
+  onNoteDeleted,
+  deletingId,
+  onNoteEdit,
+}: NotesListProps) => {
   const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
+  const [savingNoteId, setSavingNoteId] = useState<number | null>(null);
   const handleEditClick = (note: Note) => {
     setEditingNoteId(note.id);
     setEditTitle(note.title);
     setEditContent(note.content);
   };
-  const handleSave = (note: Note) => {
-    onNoteEdit(note.id, editTitle, editContent);
-    setEditingNoteId(null);
+  const handleSave = async (note: Note) => {
+    setSavingNoteId(note.id);
+
+    try {
+      await onNoteEdit(note.id, editTitle, editContent);
+      setEditingNoteId(null);
+    } finally {
+      setSavingNoteId(null);
+    }
   };
   return (
     <div>
@@ -35,7 +48,12 @@ const NotesList = ({ notes, onNoteDeleted, onNoteEdit }: NotesListProps) => {
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
               />
-              <button onClick={() => handleSave(note)}>Save</button>
+              <button
+                onClick={() => handleSave(note)}
+                disabled={savingNoteId === note.id}
+              >
+                {savingNoteId === note.id ? "Saving..." : "Save"}
+              </button>
             </>
           ) : (
             <>
@@ -44,7 +62,12 @@ const NotesList = ({ notes, onNoteDeleted, onNoteEdit }: NotesListProps) => {
             </>
           )}
           <button onClick={() => handleEditClick(note)}>Edit</button>
-          <button onClick={() => onNoteDeleted(note.id)}>Delete</button>
+          <button
+            onClick={() => onNoteDeleted(note.id)}
+            disabled={deletingId === note.id}
+          >
+            {deletingId === note.id ? "Deleting..." : "Delete"}
+          </button>
         </div>
       ))}
     </div>

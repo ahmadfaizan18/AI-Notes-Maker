@@ -38,12 +38,14 @@ const CreateNote = ({ onNoteCreated }: CreateNoteProps) => {
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder="Note title"
+            required
           />
 
           <textarea
             value={content}
             onChange={(event) => setContent(event.target.value)}
             placeholder="Write your note..."
+            required
           />
 
           <button type="submit" disabled={loading}>
