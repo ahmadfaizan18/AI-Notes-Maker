@@ -10,6 +10,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -35,14 +36,16 @@ export default function App() {
     setShowNotes(!showNotes);
   };
   const handleDeleteANote = async (id: number) => {
+    setDeleteError(null)
     setDeletingId(id);
     try {
       await deleteNote(id);
       setNotes((prevNotes) => prevNotes.filter((ele) => ele.id !== id));
     } catch (error) {
-      console.error(error);
-      setDeletingId(null);
-      throw error;
+      console.error(error)
+      setDeleteError("Failed To Delete The Note :(")
+    }finally{
+      setDeletingId(null)
     }
   };
 
@@ -50,7 +53,8 @@ export default function App() {
     id: number,
     title: string,
     content: string,
-  ) => {
+  ):Promise<void>=>{
+
     try {
       const note = await patchNote(id, title, content);
       setNotes((prevNotes) =>
@@ -58,6 +62,7 @@ export default function App() {
       );
     } catch (error) {
       console.error(error);
+      throw(error)
     }
   };
 
@@ -75,6 +80,7 @@ export default function App() {
           onNoteDeleted={handleDeleteANote}
           deletingId={deletingId}
           onNoteEdit={handleEditANote}
+          deleteError={deleteError}
         />
       )}
 
