@@ -23,7 +23,7 @@ export default function App() {
         setNotes(notes);
       } catch (error) {
         console.error(error);
-        setError("failed to fetch notes");
+        setError("failed To Fetch Notes!");
       } finally {
         setLoading(false);
       }
@@ -35,7 +35,7 @@ export default function App() {
     setNotes((prevNotes) => [...prevNotes, note]);
   };
   const viewNotes = () => {
-    setShowNotes(!showNotes);
+    setShowNotes((prev)=>!prev);
   };
   const handleDeleteANote = async (id: number) => {
     setDeleteError(null);
@@ -68,7 +68,7 @@ export default function App() {
   };
 
   const showCreateNoteFunc = () => {
-    setShowCreateNote(!showCreateNote);
+    setShowCreateNote((prev)=>!prev);
   };
 
   return (
