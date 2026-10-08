@@ -1,0 +1,11 @@
+.create-note-btn,
+.view-notes-btn {
+  display: block;
+  margin: 40px auto;
+  padding: 12px 30px;
+  font-size: 18px;
+}
+
+.main-title{
+    text-align:center
+}

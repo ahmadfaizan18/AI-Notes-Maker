@@ -1,12 +1,14 @@
 import { useState } from "react";
 import type { Note } from "../types/Note";
 import { postNote } from "../src/services/noteService";
+import "./CreateNote.css";
 
 interface CreateNoteProps {
   onNoteCreated: (note: Note) => void;
+  onCancel: () => void;
 }
 
-const CreateNote = ({ onNoteCreated }: CreateNoteProps) => {
+const CreateNote = ({ onNoteCreated, onCancel }: CreateNoteProps) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,28 +33,35 @@ const CreateNote = ({ onNoteCreated }: CreateNoteProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-        <div>
-          <input
-            type="text"
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            placeholder="Note title"
-            required
-          />
+    <form className="create-note-form" onSubmit={handleSubmit}>
+      <div>
+        <input
+          className="note-title-input"
+          type="text"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          placeholder="Note title"
+          required
+        />
 
-          <textarea
-            value={content}
-            onChange={(event) => setContent(event.target.value)}
-            placeholder="Write your note..."
-            required
-          />
+        <textarea
+          className="note-content-input"
+          value={content}
+          onChange={(event) => setContent(event.target.value)}
+          placeholder="Write your note..."
+          required
+        />
 
-          <button type="submit" disabled={loading}>
+        <div className="note-form-buttons">
+          <button className="save-note-btn" type="submit" disabled={loading}>
             {loading ? "Posting..." : "Save Your Note"}
           </button>
-          {error && <p>{error}</p>}
+          <button className="cancel-note-btn" onClick={onCancel}>
+            Cancel
+          </button>
         </div>
+        {error && <p>{error}</p>}
+      </div>
     </form>
   );
 };

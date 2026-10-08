@@ -1,5 +1,6 @@
 import type { Note } from "../types/Note";
 import { useState } from "react";
+import "./NotesList.css"
 
 interface NotesListProps {
   notes: Note[];
@@ -48,9 +49,9 @@ const NotesList = ({
   return notes.length === 0 ? (
     <p>You don't have any notes yet!</p>
   ) : (
-    <div>
+    <div className="notes-list">
       {notes.map((note) => (
-        <div key={note.id}>
+        <div key={note.id} className="note">
           {editingNoteId === note.id ? (
             <>
               <input

@@ -1,0 +1,11 @@
+.notes-list {
+  max-width: 800px;
+  margin: 30px auto;
+}
+
+.note {
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
