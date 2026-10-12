@@ -1,10 +1,9 @@
 import { useState } from "react";
 import type { Note } from "../types/Note";
-import { postNote } from "../src/services/noteService";
 import "./CreateNote.css";
 
 interface CreateNoteProps {
-  onNoteCreated: (note: Note) => void;
+  onNoteCreated: (title: string, content: string) => Promise<Note>;
   onCancel: () => void;
 }
 
@@ -18,8 +17,7 @@ const CreateNote = ({ onNoteCreated, onCancel }: CreateNoteProps) => {
     event.preventDefault();
     setLoading(true);
     try {
-      const note = await postNote(title, content);
-      onNoteCreated(note);
+      await onNoteCreated(title, content);
       setTitle("");
       setContent("");
       //setLoading(false);

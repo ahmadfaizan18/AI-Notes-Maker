@@ -1,20 +1,24 @@
-import { useState, useEffect, useMemo } from "react";
-import type { Note } from "../types/Note";
+import { useState, useMemo } from "react";
 import CreateNote from "../components/CreateNote.tsx";
 import NotesList from "../components/NotesList";
-import { getNotes, deleteNote, patchNote } from "./services/noteService";
 import SortDropdown from "../components/SortDropdown.tsx";
 import sortNotes from "./utils/sortNotes";
 import "./App.css";
 import SearchNotes from "../components/SearchNotes";
+import useNotes from "./hooks/useNotes";
 
 export default function App() {
-  const [notes, setNotes] = useState<Note[]>([]);
+  const {
+    notes,
+    loading,
+    error,
+    createNote,
+    editNote,
+    removeNote,
+    deletingId,
+    deleteError,
+  } = useNotes();
   const [showNotes, setShowNotes] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [showCreateNote, setShowCreateNote] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   //const [searchQuery, setSearchQuery] = useState("");
@@ -29,57 +33,24 @@ export default function App() {
     return sortNotes(notesCopy, sortOrder);
   }, [notes, sortOrder]);
 
-  useEffect(() => {
-    const fetchNotes = async () => {
-      setLoading(true);
-      try {
-        const notes = await getNotes();
-        setError(null);
-        setNotes(notes);
-      } catch (error) {
-        console.error(error);
-        setError("failed To Fetch Notes!");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchNotes();
-  }, []);
-
-  const handleNoteCreated = (note: Note) => {
-    setNotes((prevNotes) => [...prevNotes, note]);
+  const handleNoteCreated = (title: string, content: string) => {
+    return createNote(title, content);
   };
+
   const viewNotes = () => {
     setShowNotes((prev) => !prev);
   };
+
   const handleDeleteANote = async (id: number) => {
-    setDeleteError(null);
-    setDeletingId(id);
-    try {
-      await deleteNote(id);
-      setNotes((prevNotes) => prevNotes.filter((ele) => ele.id !== id));
-    } catch (error) {
-      console.error(error);
-      setDeleteError("Failed To Delete The Note :(");
-    } finally {
-      setDeletingId(null);
-    }
+    await removeNote(id);
   };
 
   const handleEditANote = async (
     id: number,
     title: string,
     content: string,
-  ): Promise<void> => {
-    try {
-      const note = await patchNote(id, title, content);
-      setNotes((prevNotes) =>
-        prevNotes.map((ele) => (ele.id === id ? note : ele)),
-      );
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+  ) => {
+    return editNote(id, title, content);
   };
 
   const showCreateNoteFunc = () => {
