@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { Note } from "../types/Note";
 import CreateNote from "../components/CreateNote.tsx";
 import NotesList from "../components/NotesList";
@@ -13,6 +13,8 @@ export default function App() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [showCreateNote, setShowCreateNote] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -35,7 +37,7 @@ export default function App() {
     setNotes((prevNotes) => [...prevNotes, note]);
   };
   const viewNotes = () => {
-    setShowNotes((prev)=>!prev);
+    setShowNotes((prev) => !prev);
   };
   const handleDeleteANote = async (id: number) => {
     setDeleteError(null);
@@ -68,8 +70,18 @@ export default function App() {
   };
 
   const showCreateNoteFunc = () => {
-    setShowCreateNote((prev)=>!prev);
+    setShowCreateNote((prev) => !prev);
   };
+
+  const searchedNotes = useMemo(
+    () =>
+      notes.filter(
+        (note) =>
+          note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          note.content.toLowerCase().includes(searchQuery.toLowerCase()),
+      ),
+    [notes, searchQuery],
+  );
 
   return (
     <>
@@ -85,7 +97,9 @@ export default function App() {
             onCancel={showCreateNoteFunc}
           />
         ) : (
-          <button className="create-note-btn" onClick={showCreateNoteFunc}>Create A Note!</button>
+          <button className="create-note-btn" onClick={showCreateNoteFunc}>
+            Create A Note!
+          </button>
         )}
         {showNotes && (
           <NotesList
@@ -100,6 +114,52 @@ export default function App() {
         <button className="view-notes-btn" onClick={viewNotes}>
           {showNotes ? "Close" : "View Your Notes"}
         </button>
+        {showSearch ? (
+          <div>
+            <div>
+              <input
+                type="text"
+                placeholder="Search by text or content..."
+                value={searchQuery}
+                onChange={(event) => {
+                  setSearchQuery(event.target.value);
+                }}
+                required
+              ></input>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowSearch(false);
+                  setSearchQuery("");
+                }}
+              >
+                Close
+              </button>
+            </div>
+            {searchQuery.trim() !== "" && (
+              <>
+                {searchedNotes.length > 0 ? (
+                  <NotesList
+                    notes={searchedNotes}
+                    onNoteDeleted={handleDeleteANote}
+                    deletingId={deletingId}
+                    onNoteEdit={handleEditANote}
+                    deleteError={deleteError}
+                  />
+                ) : (
+                  <p>No Matching Results Found</p>
+                )}
+              </>
+            )}
+          </div>
+        ) : (
+          <button
+            className="search-notes-btn"
+            onClick={() => setShowSearch((prev) => !prev)}
+          >
+            Search...
+          </button>
+        )}
       </div>
     </>
   );

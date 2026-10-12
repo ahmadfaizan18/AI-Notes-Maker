@@ -1,5 +1,6 @@
 .create-note-btn,
-.view-notes-btn {
+.view-notes-btn,
+.search-notes-btn{
   display: block;
   margin: 40px auto;
   padding: 12px 30px;

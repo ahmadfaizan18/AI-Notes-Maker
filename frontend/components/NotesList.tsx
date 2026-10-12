@@ -1,6 +1,6 @@
 import type { Note } from "../types/Note";
 import { useState } from "react";
-import "./NotesList.css"
+import "./NotesList.css";
 
 interface NotesListProps {
   notes: Note[];
