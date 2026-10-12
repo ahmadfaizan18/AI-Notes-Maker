@@ -15,6 +15,31 @@ export default function App() {
   const [showCreateNote, setShowCreateNote] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState("newest");
+  const [searchSortOrder, setSearchSortOrder] = useState("newest");
+
+  const sortedNotes = useMemo(() => {
+    const notesCopy = [...notes];
+
+    if (sortOrder === "newest") {
+      return notesCopy.sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      );
+    }
+
+    if (sortOrder === "oldest") {
+      return notesCopy.sort(
+        (a, b) =>
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+      );
+    }
+
+    return notesCopy.sort(
+      (a, b) =>
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+    );
+  }, [notes, sortOrder]);
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -73,15 +98,26 @@ export default function App() {
     setShowCreateNote((prev) => !prev);
   };
 
-  const searchedNotes = useMemo(
-    () =>
-      notes.filter(
-        (note) =>
-          note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          note.content.toLowerCase().includes(searchQuery.toLowerCase()),
-      ),
-    [notes, searchQuery],
-  );
+  const searchedNotes = useMemo(() => {
+    const filterNotes = notes.filter(
+      (note) =>
+        note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        note.content.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+    return filterNotes.sort((a, b) => {
+      if (searchSortOrder === "newest")
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+      else if (searchSortOrder == "oldest")
+        return (
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        );
+      return (
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      );
+    });
+  }, [notes, searchQuery, searchSortOrder]);
 
   return (
     <>
@@ -102,13 +138,24 @@ export default function App() {
           </button>
         )}
         {showNotes && (
-          <NotesList
-            notes={notes}
-            onNoteDeleted={handleDeleteANote}
-            deletingId={deletingId}
-            onNoteEdit={handleEditANote}
-            deleteError={deleteError}
-          />
+          <div className="notes-section">
+            <select
+              className="sort-dropdown"
+              value={sortOrder}
+              onChange={(event) => setSortOrder(event.target.value)}
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="updated">Recently Updated</option>
+            </select>
+            <NotesList
+              notes={sortedNotes}
+              onNoteDeleted={handleDeleteANote}
+              deletingId={deletingId}
+              onNoteEdit={handleEditANote}
+              deleteError={deleteError}
+            />
+          </div>
         )}
 
         <button className="view-notes-btn" onClick={viewNotes}>
@@ -116,7 +163,7 @@ export default function App() {
         </button>
         {showSearch ? (
           <div>
-            <div>
+            <div className="search-container">
               <input
                 type="text"
                 placeholder="Search by text or content..."
@@ -137,7 +184,16 @@ export default function App() {
               </button>
             </div>
             {searchQuery.trim() !== "" && (
-              <>
+              <div className="notes-section">
+                <select
+                  className="sort-dropdown"
+                  value={searchSortOrder}
+                  onChange={(event) => setSearchSortOrder(event.target.value)}
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="updated">Recently Updated</option>
+                </select>
                 {searchedNotes.length > 0 ? (
                   <NotesList
                     notes={searchedNotes}
@@ -147,9 +203,9 @@ export default function App() {
                     deleteError={deleteError}
                   />
                 ) : (
-                  <p>No Matching Results Found</p>
+                  <p className="no-search-results">No Matching Results Found</p>
                 )}
-              </>
+              </div>
             )}
           </div>
         ) : (

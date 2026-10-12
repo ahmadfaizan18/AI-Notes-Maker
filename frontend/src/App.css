@@ -1,12 +1,84 @@
 .create-note-btn,
 .view-notes-btn,
-.search-notes-btn{
+.search-notes-btn {
   display: block;
   margin: 40px auto;
   padding: 12px 30px;
   font-size: 18px;
 }
 
-.main-title{
-    text-align:center
+.main-title {
+  text-align: center;
+}
+
+.search-container input {
+  width: 350px;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+.search-container button {
+  padding: 12px 20px;
+  font-size: 16px;
+  margin-left: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.search-container button:hover {
+  background-color: #dcdcdc;
+  border-color: #999;
+  transform: scale(1.05);
+  transition: all 0.2s ease;
+}
+
+@media (max-width: 480px) {
+  .search-container input {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .search-container {
+    padding: 0 15px;
+  }
+}
+
+.search-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1px;
+  margin: 20px auto;
+}
+
+.no-search-results {
+  text-align: center;
+  margin: 25px auto;
+  font-size: 18px;
+  color: #666;
+}
+
+.sort-dropdown {
+  padding: 10px 14px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: white;
+  cursor: pointer;
+  outline: none;
+}
+
+.notes-section {
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.notes-section .sort-dropdown {
+  display: block;
+  margin-left: auto;
+  margin-bottom: 20px;
 }
