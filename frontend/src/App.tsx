@@ -25,7 +25,7 @@ export default function App() {
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest" | "updated">(
     "newest",
   );
-  //const [searchSortOrder, setSearchSortOrder] = useState("newest");
+  const [savedMessage, setSavedMessage] = useState("");
 
   const sortedNotes = useMemo(() => {
     const notesCopy = [...notes];
@@ -33,8 +33,16 @@ export default function App() {
     return sortNotes(notesCopy, sortOrder);
   }, [notes, sortOrder]);
 
-  const handleNoteCreated = (title: string, content: string) => {
-    return createNote(title, content);
+  const handleNoteCreated = async (title: string, content: string) => {
+    const note = await createNote(title, content);
+
+    setShowCreateNote(false);
+    setSavedMessage("Note Created Succesfully!");
+
+    setTimeout(() => {
+      setSavedMessage("");
+    }, 3000);
+    return note;
   };
 
   const viewNotes = () => {
@@ -71,9 +79,12 @@ export default function App() {
             onCancel={showCreateNoteFunc}
           />
         ) : (
-          <button className="create-note-btn" onClick={showCreateNoteFunc}>
-            Create A Note!
-          </button>
+          <>
+            <button className="create-note-btn" onClick={showCreateNoteFunc}>
+              Create A Note!
+            </button>
+            {savedMessage && <p className="success-message">{savedMessage}</p>}
+          </>
         )}
         {showNotes && (
           <div className="notes-section">
