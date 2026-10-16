@@ -1,4 +1,7 @@
 const Note = require("../models/noteModel");
+const isValidId = (id) => {
+  return Number.isInteger(Number(id)) && Number(id) > 0;
+};
 
 const getAllNotes = async (req, res) => {
   try {
@@ -7,42 +10,48 @@ const getAllNotes = async (req, res) => {
     res.status(200).json({
       status: "success",
       data: {
-        notes
-      }
+        number: notes.length,
+        notes,
+      },
     });
   } catch (err) {
     console.log(err);
 
     res.status(500).json({
       status: "error",
-      message: "Failed to fetch notes"
+      message: "Failed to fetch notes",
     });
   }
 };
 
 const getNoteByID = async (req, res) => {
   try {
+    if (!isValidId(req.params.id))
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid ID!",
+      });
     const note = await Note.getNoteByID(req.params.id);
 
     if (note.length === 0) {
       return res.status(404).json({
         status: "error",
-        message: `No Note with id:${req.params.id} exists`
+        message: `No Note with id:${req.params.id} exists`,
       });
     }
 
     res.status(200).json({
       status: "success",
       data: {
-        note
-      }
+        note,
+      },
     });
   } catch (err) {
     console.log(err);
 
     res.status(500).json({
       status: "error",
-      message: "Failed to fetch note"
+      message: "Failed to fetch note",
     });
   }
 };
@@ -51,10 +60,15 @@ const createNote = async (req, res) => {
   try {
     const { title, content } = req.body;
 
-    if (!title || !content) {
+    if (
+      typeof title !== "string" ||
+      typeof content !== "string" ||
+      !title.trim() ||
+      !content.trim()
+    ) {
       return res.status(400).json({
         status: "error",
-        message: "Title and content are required"
+        message: "Title and content are required",
       });
     }
 
@@ -63,28 +77,38 @@ const createNote = async (req, res) => {
     res.status(201).json({
       status: "success",
       data: {
-        note
-      }
+        note,
+      },
     });
   } catch (err) {
     console.log(err);
 
     res.status(500).json({
       status: "error",
-      message: "Failed to create note"
+      message: "Failed to create note",
     });
   }
 };
 
 const updateNote = async (req, res) => {
   try {
+    if (!isValidId(req.params.id))
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid ID!",
+      });
+
     const id = Number(req.params.id);
     const { title, content } = req.body;
 
-    if (title === undefined && content === undefined) {
+    if (
+      (title !== undefined && (typeof title !== "string" || !title.trim())) ||
+      (content !== undefined &&
+        (typeof content !== "string" || !content.trim()))
+    ) {
       return res.status(400).json({
         status: "error",
-        message: "No fields provided for update"
+        message: "Title and content must be non-empty strings",
       });
     }
 
@@ -93,51 +117,55 @@ const updateNote = async (req, res) => {
     if (!note) {
       return res.status(404).json({
         status: "error",
-        message: `No Note with id:${id} exists`
+        message: `No Note with id:${id} exists`,
       });
     }
 
     res.status(200).json({
       status: "success",
       data: {
-        note
-      }
+        note,
+      },
     });
   } catch (err) {
     console.log(err);
 
     res.status(500).json({
       status: "error",
-      message: "Failed to update note"
+      message: "Failed to update note",
     });
   }
 };
 
 const deleteNote = async (req, res) => {
   try {
+    if (!isValidId(req.params.id))
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid ID!",
+      });
     const id = Number(req.params.id);
-
     const note = await Note.deleteNote(id);
 
     if (!note) {
       return res.status(404).json({
         status: "error",
-        message: `No Note with id:${id} exists`
+        message: `No Note with id:${id} exists`,
       });
     }
 
     res.status(200).json({
       status: "success",
       data: {
-        note
-      }
+        note,
+      },
     });
   } catch (err) {
     console.log(err);
 
     res.status(500).json({
       status: "error",
-      message: "Failed to delete note"
+      message: "Failed to delete note",
     });
   }
 };
@@ -147,5 +175,5 @@ module.exports = {
   getNoteByID,
   createNote,
   updateNote,
-  deleteNote
+  deleteNote,
 };

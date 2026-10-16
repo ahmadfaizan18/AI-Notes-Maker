@@ -22,6 +22,7 @@ const NotesList = ({
   const [editContent, setEditContent] = useState("");
   const [savingNoteId, setSavingNoteId] = useState<number | null>(null);
   const [editError, setEditError] = useState<string | null>(null);
+  //const [editCancel,setEditCancel]=useState(false)
 
   const handleEditClick = (note: Note) => {
     setEditingNoteId(note.id);
@@ -29,14 +30,17 @@ const NotesList = ({
     setEditContent(note.content);
   };
   const handleSave = async (note: Note) => {
+    
     setSavingNoteId(note.id);
     setEditError(null);
+
     try {
       await onNoteEdit(note.id, editTitle, editContent);
       setEditingNoteId(null);
     } catch (error) {
-      console.error(error);
-      setEditError("Failed To Update Note!");
+      setEditError(
+        error instanceof Error ? error.message : "Failed To Update Note!",
+      );
     } finally {
       setSavingNoteId(null);
     }
@@ -69,34 +73,39 @@ const NotesList = ({
               >
                 {savingNoteId === note.id ? "Saving..." : "Save"}
               </button>
-
-              {editError && <p>{editError}</p>}
+              <button onClick={()=>{
+                setEditingNoteId(null)
+                setEditError(null)
+              }}>Cancel</button>
+              {editError && <p className="edit-error">{editError}</p>}
             </>
           ) : (
             <>
               <h2>{note.title}</h2>
               <p>{note.content}</p>
               <small>Created: {formatDate(note.created_at)}</small>
-              <br/>
+              <br />
               <small> Updated: {formatDate(note.updated_at)}</small>
             </>
           )}
-          <div>{editingNoteId !== note.id && (
-            <button onClick={() => handleEditClick(note)}>Edit</button>
-          )}
-          <button
-            onClick={() => {
-              if (
-                window.confirm("Are you sure you want to delete this note?")
-              ) {
-                onNoteDeleted(note.id);
-              }
-            }}
-            disabled={deletingId === note.id}
-          >
-            {deletingId === note.id ? "Deleting..." : "Delete"}
-          </button>
-          {deleteError && <p>{deleteError}</p>}</div>
+          <div>
+            {editingNoteId !== note.id && (
+              <button onClick={() => handleEditClick(note)}>Edit</button>
+            )}
+            <button
+              onClick={() => {
+                if (
+                  window.confirm("Are you sure you want to delete this note?")
+                ) {
+                  onNoteDeleted(note.id);
+                }
+              }}
+              disabled={deletingId === note.id}
+            >
+              {deletingId === note.id ? "Deleting..." : "Delete"}
+            </button>
+            {deleteError && <p>{deleteError}</p>}
+          </div>
         </div>
       ))}
     </div>

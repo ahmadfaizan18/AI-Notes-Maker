@@ -42,13 +42,15 @@ export default function useNotes() {
   };
 
   const editNote = async (id: number, title: string, content: string) => {
-    const updatedNote = await patchNote(id, title, content);
-
-    setNotes((prevNotes) =>
-      prevNotes.map((note) => (note.id === id ? updatedNote : note)),
-    );
-
-    return updatedNote;
+    try {
+      const updatedNote = await patchNote(id, title, content);
+      setNotes((prevNotes) =>
+        prevNotes.map((note) => (note.id === id ? updatedNote : note)),
+      );
+      return updatedNote;
+    } catch (error) {
+      throw error;
+    }
   };
 
   const removeNote = async (id: number) => {
@@ -67,6 +69,15 @@ export default function useNotes() {
       setDeletingId(null);
     }
   };
-  return { notes, setNotes, loading, error, createNote, editNote, removeNote,deletingId,
-  deleteError };
+  return {
+    notes,
+    setNotes,
+    loading,
+    error,
+    createNote,
+    editNote,
+    removeNote,
+    deletingId,
+    deleteError,
+  };
 }

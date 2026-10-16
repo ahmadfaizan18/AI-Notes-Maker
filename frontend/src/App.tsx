@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import CreateNote from "../components/CreateNote.tsx";
 import NotesList from "../components/NotesList";
 import SortDropdown from "../components/SortDropdown.tsx";
@@ -21,11 +21,11 @@ export default function App() {
   const [showNotes, setShowNotes] = useState(false);
   const [showCreateNote, setShowCreateNote] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-  //const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest" | "updated">(
     "newest",
   );
   const [savedMessage, setSavedMessage] = useState("");
+  const successTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const sortedNotes = useMemo(() => {
     const notesCopy = [...notes];
@@ -39,9 +39,10 @@ export default function App() {
     setShowCreateNote(false);
     setSavedMessage("Note Created Succesfully!");
 
-    setTimeout(() => {
+    if (successTimer.current !== null) clearTimeout(successTimer.current);
+    successTimer.current = setTimeout(() => {
       setSavedMessage("");
-    }, 3000);
+    }, 10000);
     return note;
   };
 
@@ -70,7 +71,7 @@ export default function App() {
       <h1 className="main-title">AI Notes Maker</h1>
 
       {loading && <p>Loading notes...</p>}
-      {error && <p>{error}</p>}
+      {error && <p className="fetch-error">{error}</p>}
 
       <div className="main-buttons">
         {showCreateNote ? (
@@ -79,13 +80,11 @@ export default function App() {
             onCancel={showCreateNoteFunc}
           />
         ) : (
-          <>
             <button className="create-note-btn" onClick={showCreateNoteFunc}>
               Create A Note!
             </button>
-            {savedMessage && <p className="success-message">{savedMessage}</p>}
-          </>
         )}
+        {savedMessage && <p className="success-message">{savedMessage}</p>}
         {showNotes && (
           <div className="notes-section">
             <SortDropdown sortOrder={sortOrder} onSortChange={setSortOrder} />

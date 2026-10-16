@@ -30,7 +30,8 @@ export async function postNote(title: string, content: string) {
       const data = await response.json();
       return data.data.note;
     } else {
-      throw new Error("Failed To Create Note");
+      const data = await response.json();
+      throw new Error(data.message || "Failed To Create Note");
     }
   } catch (error) {
     console.error(error);
@@ -68,10 +69,11 @@ export async function patchNote(id: number, title: string, content: string) {
       const data = await response.json();
       return data.data.note;
     } else {
-      throw new Error("Failed To Update Note");
+      const data =await response.json()
+      throw new Error(data.message || "Failed To Update Note");
     }
   } catch (error) {
-    console.error(error);
+    console.log(error);
     throw error;
   }
 }

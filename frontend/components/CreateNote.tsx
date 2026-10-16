@@ -24,7 +24,12 @@ const CreateNote = ({ onNoteCreated, onCancel }: CreateNoteProps) => {
       setError(null);
     } catch (error) {
       console.log(error);
-      setError("Failed To Creata A Note!");
+
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Failed To Create A Note!");
+      }
     } finally {
       setLoading(false);
     }
