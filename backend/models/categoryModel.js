@@ -7,7 +7,7 @@ const getAllCategories=async()=>{
 
 const getCategoryByID=async(id)=>{
     const result=await pool.query("SELECT * FROM categories where id=$1",[id]);
-    return result.rows;
+    return result.rows[0];
 }
 
 const createCategory=async(category)=>{

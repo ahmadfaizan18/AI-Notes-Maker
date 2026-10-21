@@ -32,10 +32,10 @@ const getCategoryByID = async (req, res) => {
       });
     const category = await Category.getCategoryByID(req.params.id);
 
-    if (category.length === 0) {
+    if (!category) {
       return res.status(404).json({
         status: "error",
-        message: `This note with id:${req.params.id} has no categories`,
+        message: "This category doesn't exist",
       });
     }
 
@@ -65,8 +65,8 @@ const createCategory = async (req, res) => {
         message: "Category is required",
       });
     }
-
-    const category = await Category.createCategory(name);
+    const trimmedName = name.trim();
+    const category = await Category.createCategory(trimmedName);
 
     res.status(201).json({
       status: "success",
@@ -107,8 +107,8 @@ const updateCategory = async (req, res) => {
         message: "Category must be a non-empty string",
       });
     }
-
-    const category = await Category.updateCategory(id, name);
+    const trimmedName = name.trim();
+    const category = await Category.updateCategory(id, trimmedName);
 
     if (!category) {
       return res.status(404).json({
@@ -146,7 +146,7 @@ const deleteCategory = async (req, res) => {
         message: "Invalid ID!",
       });
     const id = Number(req.params.id);
-    const category= await Category.deleteCategory(id);
+    const category = await Category.deleteCategory(id);
 
     if (!category) {
       return res.status(404).json({
